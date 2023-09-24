@@ -21,5 +21,5 @@ class LlamaCppModelTest(TestCase):
 
         callback = [StreamingStdOutCallbackHandler()]
         model = LlamaCppModel(model_path=os.environ.get('model_path'), callback=callback)
-        result = model.qa(retriever=milvus.as_retriever(), query='介绍一下张三')
-        print(result)
+        qa = model.qa(retriever=milvus.as_retriever())
+        print(qa('介绍一下张三'))

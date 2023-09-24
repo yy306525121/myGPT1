@@ -24,9 +24,6 @@ class LlamaCppModel(object):
         self._model = LlamaCpp(model_path=model_path, max_tokens=model_n_ctx, n_batch=model_n_batch,
                                callback=callback, verbose=verbose, n_gpu_layers=gpu_layers)
 
-    def qa(self, retriever, query: str = None):
-        if query:
-            qa = RetrievalQA.from_chain_type(llm=self._model, chain_type="stuff", retriever=retriever,
+    def qa(self, retriever):
+        return RetrievalQA.from_chain_type(llm=self._model, chain_type="stuff", retriever=retriever,
                                              return_source_documents=True)
-            res = qa(query)
-            return res['result']

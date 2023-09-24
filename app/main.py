@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config
 
 from app.core.config import settings
+from app.webui.gradio_ui import gradio_ui
 
 App = FastAPI(title=settings.PROJECT_NAME, openapi_url=f'{settings.API_V1_PREFIX}/openapi.json')
 App.add_middleware(
@@ -18,17 +19,19 @@ App.add_middleware(
     allow_headers=["*"],
 )
 
-# Gradio
-io = gradio.Interface(lambda x: f'Hello{x}!', 'textbox', 'textbox')
-App = gradio.mount_gradio_app(App, io, path='/chat')
-
-Server = uvicorn.Server(Config(App, host=settings.HOST, port=settings.PORT, reload=settings.DEV, workers=multiprocessing.cpu_count()))
+Server = uvicorn.Server(
+    Config(App, host=settings.HOST, port=settings.PORT, reload=settings.DEV, workers=multiprocessing.cpu_count()))
 
 
 # 路由
 def init_routers():
     from app.api.api_v1 import api_router
     App.include_router(api_router, prefix=settings.API_V1_PREFIX)
+
+
+def init_gradio():
+    global App
+    App = gradio.mount_gradio_app(App, gradio_ui(), path='/gradio')
 
 
 def init_env():
@@ -40,6 +43,7 @@ def init_env():
 def start_server():
     # 加载环境变量
     init_env()
+    init_gradio()
     # 加载路由
     init_routers()
 
