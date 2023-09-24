@@ -7,8 +7,8 @@ from langchain.vectorstores import Milvus
 
 
 class MilvusOperator(object):
-    def __init__(self, host: str = 'localhost', port: str = '19530'):
-        self._embedding = HuggingFaceEmbeddings(model_name=os.environ.get('embedding_model_path'),
+    def __init__(self, host: str = 'localhost', port: str = '19530', embedding_model_path: str = None):
+        self._embedding = HuggingFaceEmbeddings(model_name=embedding_model_path,
                                                 model_kwargs={'device': 'cpu'})
         self._connection = Milvus.from_documents(documents=[], embedding=self._embedding,
                                                  connection_args={'host': host, 'port': port, 'user': 'minioadmin',
@@ -22,3 +22,6 @@ class MilvusOperator(object):
         if content:
             return self._connection.similarity_search(query=content)
         return []
+
+    def as_retriever(self):
+        return self._connection.as_retriever(search_type='mmr', search_kwargs={'k': 4})
