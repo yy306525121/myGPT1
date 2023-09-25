@@ -15,26 +15,18 @@ def image_classifier(inp):
     return {'cat': 0.3, 'dog': 0.7}
 
 
-def generate_chat(query: str = None):
-    milvus = MilvusOperator(embedding_model_path=os.environ.get('embedding_model_path'))
-    callback = [StreamingStdOutCallbackHandler()]
-    model = LlamaCppModel(model_path=os.environ.get('model_path'), callback=callback)
-    retriever = milvus.as_retriever()
-    qa = model.qa(retriever=retriever)
-    result = qa(query)
-    return result['result']
-
-llm = LlamaCpp(model_path='/Users/yangzy/Documents/model/Llama2-chat-13B-Chinese-50W/ggml-model-q4_0.gguf', max_tokens=1000,
-                                n_gpu_layers=0)
+# llm = LlamaCpp(model_path='/Users/yangzy/Documents/model/Llama2-chat-13B-Chinese-50W/ggml-model-q4_0.gguf', max_tokens=1000,
+#                                 n_gpu_layers=0)
 
 llm = Llama(
     model_path='/Users/yangzy/Documents/model/Llama2-chat-13B-Chinese-50W/ggml-model-q4_0.gguf',
     n_ctx=2048,
-    n_gpu_layers=0, # change n_gpu_layers if you have more or less VRAM
+    n_gpu_layers=0,  # change n_gpu_layers if you have more or less VRAM
 )
 system_message = """
 你是一个可爱的人工智能，你将帮助客户解答各种疑问.
 """
+
 
 def generate_text(message, history):
     temp = ""
@@ -68,17 +60,6 @@ def generate_text(message, history):
 
     history = ["init", input_prompt]
 
-def alternatingly_agree(message, history):
-    if len(history) % 2 == 0:
-        return f"Yes, I do think that '{message}'"
-    else:
-        return "I don't think so"
-
-
-def predict(message, history):
-    for i in range(len(message)):
-        time.sleep(0.3)
-        yield "You typed: " + message[: i + 1]
 
 def gradio_ui():
     # io = gradio.Interface(fn=generate_chat, inputs=gradio.components.Textbox(label='问题'),
