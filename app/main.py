@@ -31,7 +31,7 @@ def init_routers():
 
 def init_gradio():
     global App
-    from app.webui.gradio_ui import gradio_ui
+    from app.webui.gradio_ui2 import gradio_ui
     App = gradio.mount_gradio_app(App, gradio_ui(), path='/gradio')
 
 
