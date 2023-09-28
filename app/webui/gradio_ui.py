@@ -1,28 +1,16 @@
 import copy
 import os
-import time
 
 import gradio
-from langchain import LlamaCpp
-from langchain.callbacks import StreamingStdOutCallbackHandler
 from llama_cpp import Llama
 
-from app.db import MilvusOperator
-from app.model.llama_cpp_model import LlamaCppModel
-
-
-def image_classifier(inp):
-    return {'cat': 0.3, 'dog': 0.7}
-
-
-# llm = LlamaCpp(model_path='/Users/yangzy/Documents/model/Llama2-chat-13B-Chinese-50W/ggml-model-q4_0.gguf', max_tokens=1000,
-#                                 n_gpu_layers=0)
-
 llm = Llama(
-    model_path='/Users/yangzy/Documents/model/Llama2-chat-13B-Chinese-50W/ggml-model-q4_0.gguf',
+    model_path=os.environ.get('model_path'),
     n_ctx=2048,
+    verbose=False,
     n_gpu_layers=0,  # change n_gpu_layers if you have more or less VRAM
 )
+
 system_message = """
 你是一个可爱的人工智能，你将帮助客户解答各种疑问.
 """
@@ -58,10 +46,6 @@ def generate_text(message, history):
         temp += stream["choices"][0]["text"]
         yield temp
 
-    history = ["init", input_prompt]
-
 
 def gradio_ui():
-    # io = gradio.Interface(fn=generate_chat, inputs=gradio.components.Textbox(label='问题'),
-    #                       outputs=gradio.components.Textbox(label='答案'), )
     return gradio.ChatInterface(generate_text).queue()
